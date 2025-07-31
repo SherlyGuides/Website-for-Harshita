@@ -147,7 +147,7 @@ except:
     insta_df = pd.DataFrame(columns=["caption","url"])
 
 # --- determine current tab via query param ---
-params = st.query_params()
+params = st.experimental_get_query_params()
 current_tab = params.get("tab", ["Home"])[0]
 if current_tab not in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]:
     current_tab = "Home"
@@ -276,10 +276,3 @@ elif current_tab == "Contact":
             <p>📸 <strong>Instagram:</strong> <a href="https://instagram.com/harshita.music" target="_blank">@harshita.music</a></p>
         </div>
     """, unsafe_allow_html=True)
-
-
-
-
-
-
-
