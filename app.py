@@ -1,56 +1,11 @@
-
 import streamlit as st
 import pandas as pd
 from urllib.parse import urlencode
-from PIL import Image, ImageOps
-import base64
-import io
-import os
 
-# ----------- config -----------
+# --- config ---
 st.set_page_config(page_title="Harshita's Corner", layout="wide")
 
-# ----------- helpers -----------
-def pil_to_base64(img: Image.Image, fmt="PNG"):
-    buffered = io.BytesIO()
-    img.save(buffered, format=fmt, quality=85)
-    return base64.b64encode(buffered.getvalue()).decode()
-
-def make_circular(img: Image.Image, size=(120, 120)):
-    img = img.convert("RGBA")
-    img = ImageOps.fit(img, size, centering=(0.5, 0.5))
-    mask = Image.new("L", size, 0)
-    from PIL import ImageDraw
-    draw = ImageDraw.Draw(mask)
-    draw.ellipse((0, 0, size[0], size[1]), fill=255)
-    img.putalpha(mask)
-    return img
-
-# ----------- load images -----------
-avatar_img = None
-avatar_b64 = None
-if os.path.exists("header.jpeg"):
-    try:
-        raw = Image.open("header.jpeg")
-        avatar_img = make_circular(raw, size=(120, 120))
-        avatar_b64 = pil_to_base64(avatar_img, fmt="PNG")
-    except Exception:
-        avatar_img = None
-
-banner_b64 = None
-if os.path.exists("trail.jpeg"):
-    try:
-        banner = Image.open("trail.jpeg")
-        # optional resize for performance
-        max_width = 1200
-        if banner.width > max_width:
-            ratio = max_width / banner.width
-            banner = banner.resize((max_width, int(banner.height * ratio)), Image.Resampling.LANCZOS)
-        banner_b64 = pil_to_base64(banner, fmt="JPEG")
-    except Exception:
-        banner_b64 = None
-
-# ----------- styling -----------
+# --- styling ---
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -71,60 +26,31 @@ body, .stApp { background: var(--bg); color: #1f1f28; }
     max-width: 1140px;
     margin: auto;
 }
-.header-wrapper {
+.site-header {
+    text-align: center;
+    margin-bottom: 16px;
+    padding: 32px 20px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(159,122,234,0.1), #ffffff);
     position: relative;
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 24px;
 }
-.header-bg {
-    width: 100%;
-    height: 250px;
-    background-size: cover;
-    background-position: center;
-    filter: brightness(0.95);
-}
-.header-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(255,255,255,0.55);
-    backdrop-filter: blur(6px);
-    display: flex;
-    align-items: center;
-    padding: 30px 25px;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-.header-text {
-    flex: 1;
-    min-width: 220px;
-}
-.header-text h1 {
+.site-header h1 {
     margin: 0;
     font-size: 2.8rem;
     font-weight: 700;
     color: var(--purple-dark);
-    line-height: 1.05;
 }
-.header-text p {
+.site-header p {
     margin: 6px 0 0;
     font-size: 1rem;
     color: #444;
 }
-.avatar-container {
-    flex-shrink: 0;
-    width: 120px;
-    height: 120px;
-    position: relative;
-}
-
-/* Tabs */
 .tab-bar {
     display: flex;
     justify-content: center;
     gap: 18px;
     flex-wrap: wrap;
-    margin: 16px 0 32px;
+    margin: 24px 0 32px;
 }
 .tab {
     padding: 10px 18px;
@@ -142,14 +68,6 @@ body, .stApp { background: var(--bg); color: #1f1f28; }
 .tab.active {
     background: var(--purple-dark);
     color: white;
-}
-
-/* Content */
-.section-title {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 14px;
-    color: var(--purple-dark);
 }
 .card {
     background: var(--card);
@@ -175,6 +93,12 @@ body, .stApp { background: var(--bg); color: #1f1f28; }
     font-weight: 600;
     color: var(--purple-dark);
     text-decoration: none;
+}
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--purple-dark);
 }
 .info-box {
     background: #ffffff;
@@ -212,7 +136,7 @@ body, .stApp { background: var(--bg); color: #1f1f28; }
 </style>
 """, unsafe_allow_html=True)
 
-# ----------- load CSV data -----------
+# --- load data ---
 try:
     reviews_df = pd.read_csv("reviews.csv")
 except:
@@ -222,44 +146,31 @@ try:
 except:
     insta_df = pd.DataFrame(columns=["caption","url"])
 
-# ----------- tab state via query param -----------
-params = st.get_query_params()
+# --- determine current tab via query param ---
+params = st.experimental_get_query_params()
 current_tab = params.get("tab", ["Home"])[0]
 if current_tab not in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]:
     current_tab = "Home"
 
-# ----------- header display -----------
-header_html = "<div class='header-wrapper'>"
-if banner_b64:
-    header_html += f"<div class='header-bg' style='background-image: url(\"data:image/jpeg;base64,{banner_b64}\");'></div>"
-else:
-    header_html += "<div class='header-bg' style='background: rgba(159,122,234,0.08);'></div>"
-header_html += "<div class='header-overlay'>"
-if avatar_img and avatar_b64:
-    header_html += f"""
-      <div class='avatar-container'>
-        <img src="data:image/png;base64,{avatar_b64}" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:4px solid white;" />
-      </div>
-    """
-header_html += """
-    <div class='header-text'>
+# --- header ---
+st.markdown("""
+    <div class="site-header">
         <h1>Harshita's Corner</h1>
         <p>Follow my journey as a DU student sharing movie reviews and music!</p>
     </div>
-</div></div>
-"""
-st.markdown(header_html, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-# ----------- tab bar -----------
+# --- tab bar (HTML links so state persists on refresh) ---
 def make_link(label):
-    href = "?" + urlencode({"tab": label})
+    q = {"tab": label}
+    href = "?" + urlencode(q)
     active_class = "active" if current_tab == label else ""
     return f"<a class='tab {active_class}' href='{href}'>{label}</a>"
 
-tabs_html = "<div class='tab-bar'>" + "".join(make_link(l) for l in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]) + "</div>"
+tabs_html = "<div class='tab-bar'>" + "".join([make_link(l) for l in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]]) + "</div>"
 st.markdown(tabs_html, unsafe_allow_html=True)
 
-# ----------- content rendering -----------
+# --- content ---
 if current_tab == "Home":
     left, right = st.columns([2,1], gap="large")
     with left:
