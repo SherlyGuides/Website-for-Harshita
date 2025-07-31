@@ -90,7 +90,7 @@ h1, h2, h3 { font-family:'Inter',sans-serif; }
 """, unsafe_allow_html=True)
 
 # --- determine current tab ---
-current_tab = st.experimental_get_query_params().get("tab", ["Home"])[0]
+current_tab = st.query_params.get("tab", ["Home"])[0]
 if current_tab not in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]:
     current_tab = "Home"
 
