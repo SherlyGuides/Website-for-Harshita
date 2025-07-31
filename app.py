@@ -119,7 +119,13 @@ except Exception:
     insta_df = pd.DataFrame(columns=["caption", "url"])
 
 # -------- tab logic --------
-params = st.get_query_params()
+def get_params():
+    if hasattr(st, "get_query_params"):
+        return st.get_query_params()
+    else:
+        return st.experimental_get_query_params()
+
+params = get_params()
 current_tab = params.get("tab", ["Home"])[0]
 if current_tab not in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]:
     current_tab = "Home"
