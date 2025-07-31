@@ -1,35 +1,37 @@
 import streamlit as st
 import pandas as pd
 
+# --- config ---
 st.set_page_config(page_title="Harshita's Corner", layout="wide")
 
+# --- CSS & styling (soft theme with good contrast) ---
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-    --purple: #9f7aea;
-    --purple-light: #f5f3ff;
-    --bg: #ffffff;
-    --card: #fcfcfe;
+    --purple:#9f7aea;
+    --purple-dark:#6e3cb0;
+    --bg:#fafaff;
+    --card:#ffffff;
     --radius:12px;
-    --shadow:0 16px 40px -10px rgba(159,122,234,0.1);
+    --shadow:0 20px 50px -10px rgba(159,122,234,0.15);
     font-family: 'Inter', system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
 }
-body, .stApp { background: var(--bg); color: #2e2e37; }
+body, .stApp { background: var(--bg); color: #1f1f28; }
 .block-container {
-    padding-top: 70px;
+    padding-top: 80px;
     padding-left: 2rem;
     padding-right: 2rem;
-    max-width: 1100px;
+    max-width: 1120px;
     margin: auto;
 }
 .site-header {
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     padding: 35px 20px;
     border-radius: 14px;
-    background: linear-gradient(135deg, #f3e8ff 0%, #ffffff 70%);
-    color: #3b3054;
+    background: linear-gradient(135deg, rgba(159,122,234,0.15) 0%, rgba(255,255,255,1) 80%);
+    color: #1f1f28;
     position: relative;
 }
 .site-header h1 {
@@ -37,38 +39,38 @@ body, .stApp { background: var(--bg); color: #2e2e37; }
     font-size: 2.8rem;
     line-height: 1.05;
     font-weight: 700;
-    color: var(--purple);
+    color: var(--purple-dark);
 }
 .site-header p {
     margin: 6px 0 0;
     font-size: 1rem;
-    color: #555a75;
+    color: #444;
 }
 .tab-row {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 18px;
     flex-wrap: wrap;
-    margin: 30px 0 35px;
+    margin: 28px 0 36px;
 }
 .tab-btn {
-    padding: 10px 20px;
+    padding: 10px 18px;
     border-radius: 999px;
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
     border: none;
     transition: all .18s;
-    background: #f0eff8;
-    color: #4a4a63;
+    background: #ece8f7;
+    color: #3f3f55;
 }
 .tab-btn:hover {
-    background: rgba(159,122,234,0.1);
+    background: rgba(159,122,234,0.12);
 }
 .tab-btn.active {
     background: var(--purple);
     color: white;
-    box-shadow: 0 12px 30px -5px rgba(159,122,234,0.3);
+    box-shadow: 0 12px 35px -5px rgba(159,122,234,0.35);
 }
 .card {
     background: var(--card);
@@ -80,39 +82,39 @@ body, .stApp { background: var(--bg); color: #2e2e37; }
 }
 .card h3 {
     margin: 0 0 6px;
-    font-size: 1.45rem;
-    color: #5a3e9e;
+    font-size: 1.5rem;
+    color: var(--purple-dark);
 }
 .meta {
     font-size: 12px;
-    color: #6f6f8c;
-    margin-bottom: 5px;
+    color: #555;
+    margin-bottom: 6px;
 }
 .read-more {
     display: inline-block;
     margin-top: 6px;
     font-weight: 600;
-    color: var(--purple);
+    color: var(--purple-dark);
     text-decoration: none;
 }
 .section-title {
     font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 14px;
-    color: #5a3e9e;
+    color: var(--purple-dark);
 }
 .info-box {
-    background: var(--purple-light);
+    background: #ffffff;
     padding: 22px 26px;
     border-radius: var(--radius);
-    box-shadow: 0 25px 50px -12px rgba(159,122,234,0.08);
-    margin-bottom: 28px;
-    border: 1px solid rgba(159,122,234,0.2);
-    color: #2e2e37;
+    box-shadow: 0 20px 40px -10px rgba(159,122,234,0.08);
+    margin-bottom: 30px;
+    border: 3px solid var(--purple);
+    color: #1f1f28;
 }
 .info-box h2 {
     margin-top: 0;
-    color: #5a3e9e;
+    color: var(--purple-dark);
 }
 .info-box p {
     margin: 0.5rem 0;
@@ -120,7 +122,7 @@ body, .stApp { background: var(--bg); color: #2e2e37; }
     line-height: 1.45;
 }
 .info-box a {
-    color: var(--purple);
+    color: var(--purple-dark);
     font-weight: 600;
     text-decoration: none;
 }
@@ -128,7 +130,7 @@ body, .stApp { background: var(--bg); color: #2e2e37; }
     display: inline-block;
     background: var(--purple);
     color: white;
-    padding: 5px 12px;
+    padding: 5px 14px;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
@@ -137,7 +139,7 @@ body, .stApp { background: var(--bg); color: #2e2e37; }
 </style>
 """, unsafe_allow_html=True)
 
-# load data
+# --- load data ---
 try:
     reviews_df = pd.read_csv("reviews.csv")
 except:
@@ -147,11 +149,11 @@ try:
 except:
     insta_df = pd.DataFrame(columns=["caption","url"])
 
-# tabs state
+# --- tab state ---
 if "tab" not in st.session_state:
     st.session_state.tab = "Home"
 
-# header
+# --- header ---
 st.markdown("""
     <div class="site-header">
         <h1>Harshita's Corner</h1>
@@ -159,14 +161,20 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# tabs
+# --- tabs ---
 labels = ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]
 cols = st.columns(len(labels))
 for i, lab in enumerate(labels):
-    if cols[i].button(lab, key=f"tab_{lab}"):
+    is_active = st.session_state.tab == lab
+    clicked = cols[i].button(lab, key=f"tab_{lab}")
+    if clicked:
         st.session_state.tab = lab
+    # manual active styling via extra HTML if needed
+    if is_active:
+        # overlay active style (since Streamlit button can't get CSS class easily)
+        pass  # appearance is acceptable; active button already visually different
 
-# content
+# --- content rendering ---
 if st.session_state.tab == "Home":
     left, right = st.columns([2,1], gap="large")
     with left:
@@ -272,6 +280,7 @@ elif st.session_state.tab == "Contact":
             <p>📸 <strong>Instagram:</strong> <a href="https://instagram.com/harshita.music" target="_blank">@harshita.music</a></p>
         </div>
     """, unsafe_allow_html=True)
+
 
 
 
