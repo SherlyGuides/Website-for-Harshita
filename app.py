@@ -1,10 +1,11 @@
 import streamlit as st
 import pandas as pd
+from urllib.parse import urlencode
 
 # --- config ---
 st.set_page_config(page_title="Harshita's Corner", layout="wide")
 
-# --- CSS & styling (soft theme with good contrast) ---
+# --- styling (soft purple theme, high contrast) ---
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -46,28 +47,30 @@ body, .stApp { background: var(--bg); color: #1f1f28; }
     font-size: 1rem;
     color: #444;
 }
-.tab-row {
+.tab-bar {
     display: flex;
     justify-content: center;
-    gap: 18px;
+    gap: 22px;
     flex-wrap: wrap;
     margin: 28px 0 36px;
+    padding: 4px 8px;
+    background: #f5f3fc;
+    border-radius: 999px;
 }
-.tab-btn {
+.tab {
     padding: 10px 18px;
     border-radius: 999px;
     font-weight: 600;
     font-size: 14px;
-    cursor: pointer;
-    border: none;
-    transition: all .18s;
-    background: #ece8f7;
-    color: #3f3f55;
+    text-decoration: none;
+    color: #4a4a63;
+    transition: all .15s;
+    position: relative;
 }
-.tab-btn:hover {
-    background: rgba(159,122,234,0.12);
+.tab:hover {
+    background: rgba(159,122,234,0.08);
 }
-.tab-btn.active {
+.tab.active {
     background: var(--purple);
     color: white;
     box-shadow: 0 12px 35px -5px rgba(159,122,234,0.35);
@@ -139,7 +142,7 @@ body, .stApp { background: var(--bg); color: #1f1f28; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- load data ---
+# --- data load ---
 try:
     reviews_df = pd.read_csv("reviews.csv")
 except:
@@ -149,9 +152,12 @@ try:
 except:
     insta_df = pd.DataFrame(columns=["caption","url"])
 
-# --- tab state ---
-if "tab" not in st.session_state:
-    st.session_state.tab = "Home"
+# --- tab state from query param fallback to session ---
+params = st.experimental_get_query_params()
+tab = params.get("tab", [st.session_state.get("tab", "Home")])[0]
+if tab not in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]:
+    tab = "Home"
+st.session_state["tab"] = tab
 
 # --- header ---
 st.markdown("""
@@ -161,34 +167,35 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- tabs ---
-labels = ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]
-cols = st.columns(len(labels))
-for i, lab in enumerate(labels):
-    is_active = st.session_state.tab == lab
-    clicked = cols[i].button(lab, key=f"tab_{lab}")
-    if clicked:
-        st.session_state.tab = lab
-    # manual active styling via extra HTML if needed
-    if is_active:
-        # overlay active style (since Streamlit button can't get CSS class easily)
-        pass  # appearance is acceptable; active button already visually different
+# --- tab bar as HTML links ---
+def make_link(label):
+    base = st.get_url_params()
+    # build new query param
+    q = {"tab": label}
+    href = "?" + urlencode(q)
+    cls = "tab active" if st.session_state["tab"] == label else "tab"
+    return f"<a class='{cls}' href='{href}'>{label}</a>"
 
-# --- content rendering ---
-if st.session_state.tab == "Home":
+tabs_html = "<div class='tab-bar'>" + "".join([make_link(l) for l in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]]) + "</div>"
+st.markdown(tabs_html, unsafe_allow_html=True)
+
+# --- content ---
+current = st.session_state["tab"]
+
+if current == "Home":
     left, right = st.columns([2,1], gap="large")
     with left:
         st.markdown("<div class='section-title'>Latest Movie Reviews</div>", unsafe_allow_html=True)
         if reviews_df.empty:
             st.info("No movie reviews yet.")
         else:
-            for _, row in reviews_df.iterrows():
-                title = row.get("title","")
-                rating = row.get("rating","")
-                date = row.get("date","")
-                read_time = row.get("read_time","")
-                review_text = row.get("review","")
-                link = row.get("link","#")
+            for _, r in reviews_df.iterrows():
+                title = r.get("title","")
+                rating = r.get("rating","")
+                date = r.get("date","")
+                read_time = r.get("read_time","")
+                review_text = r.get("review","")
+                link = r.get("link","#")
                 st.markdown(f"""
                     <div class="card">
                         <div class="meta">{date} | {read_time} min read</div>
@@ -202,14 +209,14 @@ if st.session_state.tab == "Home":
         if insta_df.empty:
             st.info("No music posts yet.")
         else:
-            for _, row in insta_df.iterrows():
-                caption = row.get("caption","")
-                url = row.get("url","")
+            for _, r in insta_df.iterrows():
+                caption = r.get("caption","")
+                url = r.get("url","")
                 st.markdown(f"""
                     <div class="card">
                         <div style="display:flex; align-items:center; gap:10px;">
                             <div class="pill">🎵</div>
-                            <div><h3 style="margin:0; font-size:1.3rem;">{caption}</h3></div>
+                            <div><h3 style="margin:0; font-size:1.25rem;">{caption}</h3></div>
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
@@ -219,18 +226,18 @@ if st.session_state.tab == "Home":
                 """
                 st.components.v1.html(embed_html, height=450, scrolling=True)
 
-elif st.session_state.tab == "Movie Reviews":
+elif current == "Movie Reviews":
     st.markdown("<div class='section-title'>Movie Reviews</div>", unsafe_allow_html=True)
     if reviews_df.empty:
         st.info("No movie reviews yet.")
     else:
-        for _, row in reviews_df.iterrows():
-            title = row.get("title","")
-            rating = row.get("rating","")
-            date = row.get("date","")
-            read_time = row.get("read_time","")
-            review_text = row.get("review","")
-            link = row.get("link","#")
+        for _, r in reviews_df.iterrows():
+            title = r.get("title","")
+            rating = r.get("rating","")
+            date = r.get("date","")
+            read_time = r.get("read_time","")
+            review_text = r.get("review","")
+            link = r.get("link","#")
             st.markdown(f"""
                 <div class="card">
                     <div class="meta">{date} | {read_time} min read</div>
@@ -240,14 +247,14 @@ elif st.session_state.tab == "Movie Reviews":
                 </div>
             """, unsafe_allow_html=True)
 
-elif st.session_state.tab == "Music Posts":
+elif current == "Music Posts":
     st.markdown("<div class='section-title'>Music Posts</div>", unsafe_allow_html=True)
     if insta_df.empty:
         st.info("No music posts yet.")
     else:
-        for _, row in insta_df.iterrows():
-            caption = row.get("caption","")
-            url = row.get("url","")
+        for _, r in insta_df.iterrows():
+            caption = r.get("caption","")
+            url = r.get("url","")
             st.markdown(f"""
                 <div class="card">
                     <div style="display:flex; align-items:center; gap:10px;">
@@ -262,7 +269,7 @@ elif st.session_state.tab == "Music Posts":
             """
             st.components.v1.html(embed_html, height=500, scrolling=True)
 
-elif st.session_state.tab == "About":
+elif current == "About":
     st.markdown("<div class='section-title'>About Me</div>", unsafe_allow_html=True)
     st.markdown("""
         <div class="info-box">
@@ -272,7 +279,7 @@ elif st.session_state.tab == "About":
         </div>
     """, unsafe_allow_html=True)
 
-elif st.session_state.tab == "Contact":
+elif current == "Contact":
     st.markdown("<div class='section-title'>Contact</div>", unsafe_allow_html=True)
     st.markdown("""
         <div class="info-box">
@@ -280,7 +287,3 @@ elif st.session_state.tab == "Contact":
             <p>📸 <strong>Instagram:</strong> <a href="https://instagram.com/harshita.music" target="_blank">@harshita.music</a></p>
         </div>
     """, unsafe_allow_html=True)
-
-
-
-
