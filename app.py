@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 from urllib.parse import urlencode
@@ -10,7 +11,7 @@ import os
 st.set_page_config(page_title="Harshita's Corner", layout="wide")
 
 # ----------- helpers -----------
-def pil_to_base64(img: Image.Image, fmt="JPEG"):
+def pil_to_base64(img: Image.Image, fmt="PNG"):
     buffered = io.BytesIO()
     img.save(buffered, format=fmt, quality=85)
     return base64.b64encode(buffered.getvalue()).decode()
@@ -27,6 +28,7 @@ def make_circular(img: Image.Image, size=(120, 120)):
 
 # ----------- load images -----------
 avatar_img = None
+avatar_b64 = None
 if os.path.exists("header.jpeg"):
     try:
         raw = Image.open("header.jpeg")
@@ -39,13 +41,16 @@ banner_b64 = None
 if os.path.exists("trail.jpeg"):
     try:
         banner = Image.open("trail.jpeg")
-        # optionally resize banner for performance
-        banner = banner.resize((1200, int(1200 * banner.height / banner.width)), Image.Resampling.LANCZOS)
-        banner_b64 = pil_to_base64(banner)
+        # optional resize for performance
+        max_width = 1200
+        if banner.width > max_width:
+            ratio = max_width / banner.width
+            banner = banner.resize((max_width, int(banner.height * ratio)), Image.Resampling.LANCZOS)
+        banner_b64 = pil_to_base64(banner, fmt="JPEG")
     except Exception:
         banner_b64 = None
 
-# ----------- CSS & styling -----------
+# ----------- styling -----------
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -66,14 +71,11 @@ body, .stApp { background: var(--bg); color: #1f1f28; }
     max-width: 1140px;
     margin: auto;
 }
-
-/* Header with banner background */
 .header-wrapper {
     position: relative;
     border-radius: 16px;
     overflow: hidden;
     margin-bottom: 24px;
-    background: #f3e8ff;
 }
 .header-bg {
     width: 100%;
@@ -86,7 +88,7 @@ body, .stApp { background: var(--bg); color: #1f1f28; }
     position: absolute;
     inset: 0;
     background: rgba(255,255,255,0.55);
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     padding: 30px 25px;
@@ -113,9 +115,10 @@ body, .stApp { background: var(--bg); color: #1f1f28; }
     flex-shrink: 0;
     width: 120px;
     height: 120px;
+    position: relative;
 }
 
-/* Tab bar */
+/* Tabs */
 .tab-bar {
     display: flex;
     justify-content: center;
@@ -141,7 +144,7 @@ body, .stApp { background: var(--bg); color: #1f1f28; }
     color: white;
 }
 
-/* Cards & sections */
+/* Content */
 .section-title {
     font-size: 1.8rem;
     font-weight: 700;
@@ -209,7 +212,7 @@ body, .stApp { background: var(--bg); color: #1f1f28; }
 </style>
 """, unsafe_allow_html=True)
 
-# ----------- load data -----------
+# ----------- load CSV data -----------
 try:
     reviews_df = pd.read_csv("reviews.csv")
 except:
@@ -219,25 +222,24 @@ try:
 except:
     insta_df = pd.DataFrame(columns=["caption","url"])
 
-# ----------- determine current tab -----------
-params = st.experimental_get_query_params()
+# ----------- tab state via query param -----------
+params = st.get_query_params()
 current_tab = params.get("tab", ["Home"])[0]
 if current_tab not in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]:
     current_tab = "Home"
 
-# ----------- header rendering -----------
-# build header with banner and avatar
+# ----------- header display -----------
 header_html = "<div class='header-wrapper'>"
 if banner_b64:
     header_html += f"<div class='header-bg' style='background-image: url(\"data:image/jpeg;base64,{banner_b64}\");'></div>"
 else:
     header_html += "<div class='header-bg' style='background: rgba(159,122,234,0.08);'></div>"
 header_html += "<div class='header-overlay'>"
-if avatar_img:
+if avatar_img and avatar_b64:
     header_html += f"""
-        <div class='avatar-container'>
-            <img src="data:image/png;base64,{avatar_b64}" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:4px solid white;" />
-        </div>
+      <div class='avatar-container'>
+        <img src="data:image/png;base64,{avatar_b64}" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:4px solid white;" />
+      </div>
     """
 header_html += """
     <div class='header-text'>
@@ -254,10 +256,10 @@ def make_link(label):
     active_class = "active" if current_tab == label else ""
     return f"<a class='tab {active_class}' href='{href}'>{label}</a>"
 
-tabs_html = "<div class='tab-bar'>" + "".join([make_link(l) for l in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]]) + "</div>"
+tabs_html = "<div class='tab-bar'>" + "".join(make_link(l) for l in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]) + "</div>"
 st.markdown(tabs_html, unsafe_allow_html=True)
 
-# ----------- page content -----------
+# ----------- content rendering -----------
 if current_tab == "Home":
     left, right = st.columns([2,1], gap="large")
     with left:
@@ -363,6 +365,8 @@ elif current_tab == "Contact":
             <p>📸 <strong>Instagram:</strong> <a href="https://instagram.com/harshita.music" target="_blank">@harshita.music</a></p>
         </div>
     """, unsafe_allow_html=True)
+
+
 
 
 
