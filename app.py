@@ -9,11 +9,9 @@ st.markdown("""
     <style>
     .stApp { background-color: #ffffff; color: #000000; }
 
-    /* Add top margin for Streamlit cloud bar */
+    /* Push content down for Streamlit cloud bar */
     .block-container {
-        margin-top: 60px;   /* pushes content down */
-        padding-top: 0rem;
-        padding-bottom: 0rem;
+        margin-top: 60px;
         padding-left: 2rem;
         padding-right: 2rem;
     }
@@ -32,11 +30,11 @@ st.markdown("""
         text-decoration: none;
         font-weight: 600;
         font-size: 18px;
-        color: #222222 !important;
+        color: #000000 !important;
     }
     .nav-bar a.active {
-        color: #d62828 !important;
-        border-bottom: 3px solid #d62828;
+        color: #6a1b9a !important;
+        border-bottom: 3px solid #6a1b9a;
         padding-bottom: 3px;
     }
 
@@ -48,15 +46,22 @@ st.markdown("""
         margin-bottom: 20px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    .card h3 { margin: 0; color: #000; }
-    .card small { color: #666; }
-    .card a { color: #d62828; text-decoration: none; }
+    .card h3 { margin: 0; color: #6a1b9a; }
+    .card small { color: #444; }
+    .card a { color: #6a1b9a; text-decoration: none; }
     </style>
 """, unsafe_allow_html=True)
 
 # --------- LOAD DATA ---------
-reviews_df = pd.read_csv("reviews.csv")
-insta_df = pd.read_csv("instagram_links.csv")
+try:
+    reviews_df = pd.read_csv("reviews.csv")
+except:
+    reviews_df = pd.DataFrame(columns=["title", "rating", "date", "read_time", "review", "link"])
+
+try:
+    insta_df = pd.read_csv("instagram_links.csv")
+except:
+    insta_df = pd.DataFrame(columns=["caption", "url"])
 
 # --------- NAVIGATION STATE ---------
 if "current_page" not in st.session_state:
@@ -65,8 +70,8 @@ if "current_page" not in st.session_state:
 pages = ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]
 
 # --------- HEADER ---------
-st.markdown("<h1 style='text-align:center; color:#d62828;'>Harshita's Corner</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;'>Follow my journey as a DU student sharing movie reviews and music!</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center; color:#6a1b9a;'>Harshita's Corner</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; color:#000000;'>Follow my journey as a DU student sharing movie reviews and music!</p>", unsafe_allow_html=True)
 
 # --------- NAVIGATION BAR ---------
 nav_links = []
@@ -80,61 +85,76 @@ st.markdown(f"<div class='nav-bar'>{''.join(nav_links)}</div>", unsafe_allow_htm
 current_page = st.query_params.get("page", [st.session_state.current_page])[0]
 st.session_state.current_page = current_page
 
-# --------- CONTENT ---------
+# --------- PAGE CONTENT ---------
 if current_page == "Home":
-    for _, row in reviews_df.iterrows():
-        st.markdown(f"""
-        <div class='card'>
-            <h3>{row['title']} ⭐ {row['rating']}/5</h3>
-            <small>{row['date']} | {row['read_time']} min read</small>
-            <p>{row['review']}</p>
-            <a href='{row['link']}'>Read More</a>
-        </div>
-        """, unsafe_allow_html=True)
+    # Show movie reviews first
+    if not reviews_df.empty:
+        for _, row in reviews_df.iterrows():
+            st.markdown(f"""
+            <div class='card'>
+                <h3>{row['title']} ⭐ {row['rating']}/5</h3>
+                <small>{row['date']} | {row['read_time']} min read</small>
+                <p style='color:#000000;'>{row['review']}</p>
+                <a href='{row['link']}'>Read More</a>
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.info("No movie reviews available yet.")
 
-    for _, row in insta_df.iterrows():
-        caption = row['caption'] if 'caption' in row else ''
-        st.markdown(f"<div class='card'><h3>{caption}</h3></div>", unsafe_allow_html=True)
-        embed_html = f"""
-            <blockquote class="instagram-media" data-instgrm-permalink="{row['url']}" data-instgrm-version="14" style="margin:auto; max-width:540px;"></blockquote>
-            <script async src="//www.instagram.com/embed.js"></script>
-        """
-        st.components.v1.html(embed_html, height=600, scrolling=True)
+    # Show Instagram posts
+    if not insta_df.empty:
+        for _, row in insta_df.iterrows():
+            caption = row['caption'] if 'caption' in row else ''
+            st.markdown(f"<div class='card'><h3>{caption}</h3></div>", unsafe_allow_html=True)
+            embed_html = f"""
+                <blockquote class="instagram-media" data-instgrm-permalink="{row['url']}" data-instgrm-version="14" style="margin:auto; max-width:540px;"></blockquote>
+                <script async src="//www.instagram.com/embed.js"></script>
+            """
+            st.components.v1.html(embed_html, height=600, scrolling=True)
+    else:
+        st.info("No Instagram music posts available yet.")
 
 elif current_page == "Movie Reviews":
-    st.markdown("<h2 style='color:#d62828;'>🎬 Movie Reviews</h2>", unsafe_allow_html=True)
-    for _, row in reviews_df.iterrows():
-        st.markdown(f"""
-        <div class='card'>
-            <h3>{row['title']} ⭐ {row['rating']}/5</h3>
-            <small>{row['date']} | {row['read_time']} min read</small>
-            <p>{row['review']}</p>
-            <a href='{row['link']}'>Read More</a>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("<h2 style='color:#6a1b9a;'>🎬 Movie Reviews</h2>", unsafe_allow_html=True)
+    if not reviews_df.empty:
+        for _, row in reviews_df.iterrows():
+            st.markdown(f"""
+            <div class='card'>
+                <h3>{row['title']} ⭐ {row['rating']}/5</h3>
+                <small>{row['date']} | {row['read_time']} min read</small>
+                <p style='color:#000000;'>{row['review']}</p>
+                <a href='{row['link']}'>Read More</a>
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.info("No movie reviews available yet.")
 
 elif current_page == "Music Posts":
-    st.markdown("<h2 style='color:#d62828;'>🎵 Music Posts</h2>", unsafe_allow_html=True)
-    for _, row in insta_df.iterrows():
-        caption = row['caption'] if 'caption' in row else ''
-        st.markdown(f"<div class='card'><h3>{caption}</h3></div>", unsafe_allow_html=True)
-        embed_html = f"""
-            <blockquote class="instagram-media" data-instgrm-permalink="{row['url']}" data-instgrm-version="14" style="margin:auto; max-width:540px;"></blockquote>
-            <script async src="//www.instagram.com/embed.js"></script>
-        """
-        st.components.v1.html(embed_html, height=600, scrolling=True)
+    st.markdown("<h2 style='color:#6a1b9a;'>🎵 Music Posts</h2>", unsafe_allow_html=True)
+    if not insta_df.empty:
+        for _, row in insta_df.iterrows():
+            caption = row['caption'] if 'caption' in row else ''
+            st.markdown(f"<div class='card'><h3>{caption}</h3></div>", unsafe_allow_html=True)
+            embed_html = f"""
+                <blockquote class="instagram-media" data-instgrm-permalink="{row['url']}" data-instgrm-version="14" style="margin:auto; max-width:540px;"></blockquote>
+                <script async src="//www.instagram.com/embed.js"></script>
+            """
+            st.components.v1.html(embed_html, height=600, scrolling=True)
+    else:
+        st.info("No Instagram music posts available yet.")
 
 elif current_page == "About":
-    st.markdown("<h2 style='color:#d62828;'>About Me</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color:#6a1b9a;'>About Me</h2>", unsafe_allow_html=True)
     st.write("""
-    Hi, I'm **Harshita Kesarwani**, a Delhi University student passionate about singing and movies.
+    Hi, I'm **Harshita Kesarwani**, a Delhi University student passionate about singing and movies.  
     This blog is where I share my honest reviews, singing journey, and stories from my student life.
     """)
 
 elif current_page == "Contact":
-    st.markdown("<h2 style='color:#d62828;'>Contact</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color:#6a1b9a;'>Contact</h2>", unsafe_allow_html=True)
     st.write("""
     📧 Email: **harshita@example.com**  
     📸 Instagram: [@harshita.music](https://instagram.com/harshita.music)
     """)
+
 
