@@ -1,173 +1,180 @@
 import streamlit as st
 import pandas as pd
 
-# --- page config ---
+# --- config ---
 st.set_page_config(page_title="Harshita's Corner", layout="wide")
 
 # --- styling ---
 st.markdown("""
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-    :root {
-        --purple:#6a1b9a;
-        --bg:#ffffff;
-        --card:#f5f5f7;
-        --radius:12px;
-        --shadow:0 8px 30px rgba(0,0,0,0.05);
-        font-family: 'Inter', system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
-    }
-    .stApp { background: var(--bg); color:#111; }
-    .block-container {
-        padding-top: 60px;
-        padding-left: 2rem;
-        padding-right: 2rem;
-        max-width: 1180px;
-        margin: auto;
-    }
-    .site-header {
-        text-align: center;
-        margin-bottom: 10px;
-    }
-    .site-header h1 {
-        margin: 0;
-        font-size: 3rem;
-        color: var(--purple);
-        line-height: 1.1;
-    }
-    .site-header p {
-        margin: 4px 0 24px;
-        font-size: 1rem;
-        color: #444;
-    }
-    .tab-bar {
-        display: flex;
-        gap: 30px;
-        justify-content: center;
-        padding: 12px 0;
-        border-bottom: 1px solid #e3e3e5;
-        margin-bottom: 40px;
-    }
-    .tab-btn {
-        background: none;
-        border: none;
-        padding: 8px 16px;
-        font-weight: 600;
-        font-size: 16px;
-        cursor: pointer;
-        position: relative;
-        color: #222;
-        border-radius: 6px;
-        transition: background .15s;
-    }
-    .tab-btn:hover { background: rgba(106,27,154,0.05); }
-    .tab-btn.active {
-        color: var(--purple);
-    }
-    .tab-btn.active::after {
-        content:'';
-        position: absolute;
-        left:0;
-        right:0;
-        bottom: -1px;
-        height:3px;
-        background: var(--purple);
-        border-radius: 2px;
-    }
-    .card {
-        background: var(--card);
-        padding: 18px 22px;
-        border-radius: var(--radius);
-        margin-bottom: 24px;
-        box-shadow: var(--shadow);
-    }
-    .card h3 {
-        margin: 0 0 6px;
-        font-size: 1.5rem;
-        color: var(--purple);
-    }
-    .meta {
-        font-size: 12px;
-        color: #555;
-        margin-bottom: 8px;
-    }
-    .read-more {
-        display: inline-block;
-        margin-top: 6px;
-        font-weight: 600;
-        color: var(--purple);
-        text-decoration: none;
-    }
-    .section-title {
-        font-size: 1.8rem;
-        font-weight: 600;
-        margin-bottom: 16px;
-        color: var(--purple);
-    }
-    .about-box, .contact-box {
-        background: var(--card);
-        padding: 20px 24px;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        max-width: 900px;
-        margin: auto;
-    }
-    .pill {
-        background: var(--purple);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 999px;
-        font-size: 12px;
-        display: inline-block;
-        margin-right: 6px;
-    }
-    a { text-decoration: none; }
-    </style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --purple-dark: #4e2a8e;
+    --purple: #6a1b9a;
+    --purple-light: #f3e8ff;
+    --bg: #ffffff;
+    --radius:14px;
+    --shadow:0 20px 40px -10px rgba(106,27,154,0.15);
+    font-family: 'Inter', system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+}
+body, .stApp { background: var(--bg); color: #1f1f28; }
+.block-container {
+    padding-top: 80px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    max-width: 1150px;
+    margin:auto;
+}
+
+/* Header */
+.site-header {
+    text-align: center;
+    margin-bottom: 8px;
+    padding: 40px 20px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--purple-dark), var(--purple));
+    color: white;
+    position: relative;
+}
+.site-header h1 {
+    margin: 0;
+    font-size: 3rem;
+    line-height: 1.05;
+    font-weight: 700;
+}
+.site-header p {
+    margin: 8px 0 0;
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+/* Tabs */
+.tab-container {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin: 30px 0 40px;
+}
+.tab-btn {
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    border: none;
+    transition: all .2s;
+    background: #f0f0f5;
+    color: var(--purple-dark);
+    position: relative;
+}
+.tab-btn:hover {
+    background: rgba(106,27,154,0.07);
+}
+.tab-btn.active {
+    background: var(--purple);
+    color: white;
+    box-shadow: 0 12px 30px -5px rgba(106,27,154,0.4);
+}
+
+/* Cards */
+.card {
+    background: white;
+    padding: 22px 24px;
+    border-radius: var(--radius);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(106,27,154,0.08);
+}
+.card h3 {
+    margin: 0 0 6px;
+    font-size: 1.6rem;
+    color: var(--purple-dark);
+}
+.meta {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 8px;
+}
+.read-more {
+    display: inline-block;
+    margin-top: 8px;
+    font-weight: 600;
+    color: var(--purple);
+    text-decoration: none;
+}
+.section-title {
+    font-size: 1.9rem;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: var(--purple-dark);
+}
+
+/* About / Contact box */
+.info-box {
+    background: var(--purple-light);
+    padding: 24px 28px;
+    border-radius: var(--radius);
+    box-shadow: 0 20px 40px -10px rgba(106,27,154,0.1);
+    margin-bottom: 30px;
+    border: 1px solid rgba(106,27,154,0.2);
+}
+.info-box p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+}
+
+/* Music pill */
+.pill {
+    display: inline-block;
+    background: var(--purple);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 8px;
+}
+</style>
 """, unsafe_allow_html=True)
 
-# --- data load with fallback ---
+# --- load data ---
 try:
     reviews_df = pd.read_csv("reviews.csv")
-except FileNotFoundError:
+except:
     reviews_df = pd.DataFrame(columns=["title", "review", "rating", "date", "read_time", "link"])
 
 try:
     insta_df = pd.read_csv("instagram_links.csv")
-except FileNotFoundError:
+except:
     insta_df = pd.DataFrame(columns=["caption", "url"])
 
-# --- navigation state ---
+# --- state ---
 if "tab" not in st.session_state:
     st.session_state.tab = "Home"
 
-# header
-st.markdown("<div class='site-header'>"
-            "<h1>Harshita's Corner</h1>"
-            "<p>Follow my journey as a DU student sharing movie reviews and music!</p>"
-            "</div>", unsafe_allow_html=True)
+# --- header ---
+st.markdown("""
+    <div class="site-header">
+        <h1>Harshita's Corner</h1>
+        <p>Follow my journey as a DU student sharing movie reviews and music!</p>
+    </div>
+""", unsafe_allow_html=True)
 
-# tabs
+# --- tabs ---
 tabs = ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]
-cols = st.columns(len(tabs))
+tab_cols = st.columns(len(tabs))
 for i, t in enumerate(tabs):
     is_active = st.session_state.tab == t
-    btn = cols[i].button(t, key=f"tab_{t}")
-    if btn:
+    if tab_cols[i].button(t, key=f"tab_{t}", help=f"Go to {t}"):
         st.session_state.tab = t
 
-# underline active manually (alternative to CSS class since using button)
-st.markdown(f"<div class='tab-bar'>"
-            + "".join([
-                f"<div style='position:relative;'><span style='font-weight:600; font-size:16px; color:{'var(--purple)' if st.session_state.tab==t else '#222'}; padding:8px 16px;'>{t}</span>"
-                + (f"<div style='height:3px; background:var(--purple); border-radius:2px; position:absolute; bottom:-1px; left:0; right:0;'></div>" if st.session_state.tab==t else "")
-                + "</div>"
-                for t in tabs
-            ]) +
-            "</div>", unsafe_allow_html=True)
+# visual underline / active style hack: re-render tabs bar for better look
+st.markdown(f"<div style='height:0.5px; margin-top:-10px;'></div>", unsafe_allow_html=True)
 
-# content switch
+# --- content ---
 if st.session_state.tab == "Home":
-    # two-column layout: left reviews, right music
-    left, right = st.columns([2, 1])
+    left, right = st.columns([2, 1], gap="large")
     with left:
         st.markdown("<div class='section-title'>Latest Movie Reviews</div>", unsafe_allow_html=True)
         if reviews_df.empty:
@@ -184,7 +191,7 @@ if st.session_state.tab == "Home":
                     <div class='card'>
                         <div class='meta'>{date} | {read_time} min read</div>
                         <h3>{title} ⭐ {rating}/5</h3>
-                        <p style='margin:8px 0 0; color:#222;'>{review_text}</p>
+                        <p style='margin:6px 0 0; color:#1f1f28;'>{review_text}</p>
                         <a class='read-more' href='{link}' target='_blank'>Read More →</a>
                     </div>
                 """, unsafe_allow_html=True)
@@ -196,12 +203,21 @@ if st.session_state.tab == "Home":
             for _, row in insta_df.iterrows():
                 caption = row.get("caption", "")
                 url = row.get("url", "")
-                st.markdown(f"<div class='card'><div class='pill'>🎵</div><h3 style='display:inline-block; margin:0;'>{caption}</h3></div>", unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div class='card'>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div class="pill">🎵</div>
+                            <div>
+                                <h3 style="margin:0; font-size:1.3rem; display:inline-block;">{caption}</h3>
+                            </div>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
                 embed_html = f"""
-                    <blockquote class="instagram-media" data-instgrm-permalink="{url}" data-instgrm-version="14" style="margin:auto; max-width:400px;"></blockquote>
+                    <blockquote class="instagram-media" data-instgrm-permalink="{url}" data-instgrm-version="14" style="margin:auto; max-width:420px;"></blockquote>
                     <script async src="//www.instagram.com/embed.js"></script>
                 """
-                st.components.v1.html(embed_html, height=500, scrolling=True)
+                st.components.v1.html(embed_html, height=480, scrolling=True)
 
 elif st.session_state.tab == "Movie Reviews":
     st.markdown("<div class='section-title'>Movie Reviews</div>", unsafe_allow_html=True)
@@ -219,7 +235,7 @@ elif st.session_state.tab == "Movie Reviews":
                 <div class='card'>
                     <div class='meta'>{date} | {read_time} min read</div>
                     <h3>{title} ⭐ {rating}/5</h3>
-                    <p style='margin:8px 0 0; color:#222;'>{review_text}</p>
+                    <p style='margin:6px 0 0; color:#1f1f28;'>{review_text}</p>
                     <a class='read-more' href='{link}' target='_blank'>Read More →</a>
                 </div>
             """, unsafe_allow_html=True)
@@ -232,7 +248,16 @@ elif st.session_state.tab == "Music Posts":
         for _, row in insta_df.iterrows():
             caption = row.get("caption", "")
             url = row.get("url", "")
-            st.markdown(f"<div class='card'><div class='pill'>🎵</div><h3 style='display:inline-block; margin:0;'>{caption}</h3></div>", unsafe_allow_html=True)
+            st.markdown(f"""
+                <div class='card'>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div class="pill">🎵</div>
+                        <div>
+                            <h3 style="margin:0; font-size:1.4rem; display:inline-block;">{caption}</h3>
+                        </div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
             embed_html = f"""
                 <blockquote class="instagram-media" data-instgrm-permalink="{url}" data-instgrm-version="14" style="margin:auto; max-width:500px;"></blockquote>
                 <script async src="//www.instagram.com/embed.js"></script>
@@ -242,16 +267,18 @@ elif st.session_state.tab == "Music Posts":
 elif st.session_state.tab == "About":
     st.markdown("<div class='section-title'>About Me</div>", unsafe_allow_html=True)
     st.markdown("""
-        <div class="about-box">
-            <p>Hi, I'm <strong>Harshita Kesarwani</strong>, a Delhi University student passionate about singing and movies. This blog is my space to share honest movie reviews, musical experiments, and slices from student life. I aim to connect with people who care about authenticity and storytelling.</p>
+        <div class="info-box">
+            <p>Hi, I'm <strong>Harshita Kesarwani</strong>, a Delhi University student passionate about singing and movies. This blog is my space to share honest movie reviews, musical experiments, and slices from student life.</p>
+            <p>I aim to connect with people who care about authenticity, storytelling, and creative expression. Expect reviews, covers, and reflections with a purple tint of personality.</p>
         </div>
     """, unsafe_allow_html=True)
 
 elif st.session_state.tab == "Contact":
     st.markdown("<div class='section-title'>Contact</div>", unsafe_allow_html=True)
     st.markdown("""
-        <div class="contact-box">
+        <div class="info-box">
             <p>📧 <strong>Email:</strong> <a href="mailto:harshita@example.com">harshita@example.com</a></p>
             <p>📸 <strong>Instagram:</strong> <a href="https://instagram.com/harshita.music" target="_blank">@harshita.music</a></p>
         </div>
     """, unsafe_allow_html=True)
+
