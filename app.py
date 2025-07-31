@@ -8,7 +8,7 @@ from PIL import Image
 from io import BytesIO
 import textwrap
 # --- config ---
-st.set_page_config(page_title="Harshita's Corner", layout="wide")
+st.set_page_config(page_title="Hey, it's Harshita Kesarwani", layout="wide")
 
 # --- utilities ---
 def safe_read_csv(path, cols):
