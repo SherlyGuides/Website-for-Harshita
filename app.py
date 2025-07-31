@@ -211,7 +211,7 @@ insta_df = safe_read_csv("instagram_links.csv", ["caption", "url"])
 # --- tab state ---
 params = st.query_params
 current_tab = params.get("tab", ["Home"])[0] if isinstance(params.get("tab", ["Home"]), list) else params.get("tab", "Home")
-if current_tab not in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]:
+if current_tab not in ["Home", "Movie Reviews", "Music Posts", "Contact"]:
     current_tab = "Home"
 
 # --- header/carousel rendering ---
@@ -288,7 +288,7 @@ def make_link(label, current_tab):
     return f"<a class='tab {active_class}' href='{href}'>{label}</a>"
 
 tabs_html = "<div class='tab-bar'>" + "".join(
-    make_link(l, current_tab) for l in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]
+    make_link(l, current_tab) for l in ["Home", "Movie Reviews", "Music Posts", "Contact"]
 ) + "</div>"
 
 st.markdown(tabs_html, unsafe_allow_html=True)
@@ -406,18 +406,6 @@ elif current_tab == "Music Posts":
             """
             st.components.v1.html(embed_html, height=500, scrolling=True)
 
-elif current_tab == "About":
-    st.markdown("<div class='section-title'>About Me</div>", unsafe_allow_html=True)
-    st.markdown(
-        """
-        <div class="info-box">
-          <h2>Hi, I'm Harshita Kesarwani</h2>
-          <p>Born in Haldwani, Nainital, Uttrakhand, I am a Delhi University student passionate about singing and movies. This blog is my space to share honest movie reviews, musical experiments, and slices from student life.</p>
-          <p>I aim to connect with people who care about authenticity, storytelling, and creative expression.</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
 
 elif current_tab == "Contact":
     st.markdown("<div class='section-title'>Contact</div>", unsafe_allow_html=True)
