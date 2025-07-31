@@ -1,5 +1,4 @@
 import streamlit as st
-st.write("Streamlit version:", st.__version__)
 import pandas as pd
 from urllib.parse import urlencode
 from PIL import Image, ImageOps, ImageDraw
@@ -9,7 +8,7 @@ import os
 
 st.set_page_config(page_title="Harshita's Corner", layout="wide")
 
-# -------- helpers --------
+# ---- helpers ----
 def pil_to_base64(img: Image.Image, fmt="PNG"):
     buf = io.BytesIO()
     img.save(buf, format=fmt, quality=85)
@@ -24,7 +23,7 @@ def make_circular(img: Image.Image, size=(120, 120)):
     img.putalpha(mask)
     return img
 
-# -------- load images --------
+# ---- load images ----
 avatar_b64 = None
 if os.path.exists("header.jpeg"):
     try:
@@ -45,7 +44,7 @@ if os.path.exists("trail.jpeg"):
     except Exception:
         banner_b64 = None
 
-# -------- styling & hide deprecation warning --------
+# ---- styling ----
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -63,12 +62,6 @@ st.markdown("""
 body, .stApp { background: var(--bg); color: #1f1f28; }
 .block-container { padding-top:80px; max-width:1140px; margin:auto; }
 
-/* hide the yellow deprecation/info bar (fallback hack) */
-div[data-testid="stMarkdownContainer"] > div[role="alert"] {
-    display: none !important;
-}
-
-/* header/banner */
 .header-wrapper { position: relative; border-radius:16px; overflow:hidden; margin-bottom:16px; }
 .header-bg { width:100%; height:250px; background-size:cover; background-position:center; filter:brightness(0.95); }
 .header-overlay { position:absolute; inset:0; background:rgba(255,255,255,0.55); backdrop-filter:blur(6px); display:flex; align-items:center; padding:30px 25px; gap:20px; flex-wrap:wrap; }
@@ -77,13 +70,11 @@ div[data-testid="stMarkdownContainer"] > div[role="alert"] {
 .header-text p { margin:6px 0 0; font-size:1rem; color:#444; }
 .avatar-container { flex-shrink:0; width:120px; height:120px; }
 
-/* tabs */
 .tab-bar { display:flex; justify-content:center; gap:18px; flex-wrap:wrap; margin:16px 0 32px; }
 .tab { padding:10px 18px; border-radius:999px; font-weight:600; font-size:14px; text-decoration:none; color:#4a4a63; background:#ece8f7; transition:all .15s; }
 .tab:hover { background: rgba(159,122,234,0.12); }
 .tab.active { background: var(--purple-dark); color:white; }
 
-/* content */
 .section-title { font-size:1.8rem; font-weight:700; margin-bottom:14px; color: var(--purple-dark); }
 .card { background: var(--card); padding:18px 22px; border-radius: var(--radius); margin-bottom:22px; box-shadow: var(--shadow); border:1px solid rgba(159,122,234,0.1); }
 .card h3 { margin:0 0 6px; font-size:1.5rem; color: var(--purple-dark); }
@@ -95,25 +86,14 @@ div[data-testid="stMarkdownContainer"] > div[role="alert"] {
 .info-box a { color: var(--purple-dark); font-weight:600; text-decoration:none; }
 .pill { display:inline-block; background: var(--purple); color:white; padding:5px 14px; border-radius:999px; font-size:12px; font-weight:600; margin-right:8px; }
 
-/* yellow callout */
-.callout {
-  background: var(--yellow-light);
-  border:1px solid var(--yellow-border);
-  border-radius:10px;
-  padding:12px 20px;
-  margin-bottom:20px;
-  display:flex;
-  gap:12px;
-  align-items:center;
-  flex-wrap:wrap;
-}
+.callout { background: var(--yellow-light); border:1px solid var(--yellow-border); border-radius:10px; padding:12px 20px; margin-bottom:20px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
 .callout .title { font-weight:700; color: var(--purple-dark); }
 .callout .desc { color:#4a4a63; }
 .callout a { margin-left:auto; background: var(--purple-dark); color:white; padding:6px 14px; border-radius:999px; text-decoration:none; font-weight:600; font-size:0.85rem; }
 </style>
 """, unsafe_allow_html=True)
 
-# -------- load data --------
+# ---- load data ----
 try:
     reviews_df = pd.read_csv("reviews.csv")
 except Exception:
@@ -123,19 +103,13 @@ try:
 except Exception:
     insta_df = pd.DataFrame(columns=["caption","url"])
 
-# -------- safe query params fallback --------
-if hasattr(st, "get_query_params"):
-    params = st.get_query_params()
-elif hasattr(st, "experimental_get_query_params"):
-    params = st.experimental_get_query_params()
-else:
-    params = {}
-
-current_tab = params.get("tab", ["Home"])[0] if isinstance(params.get("tab", None), list) else params.get("tab", "Home")
+# ---- tab logic ----
+params = st.get_query_params()
+current_tab = params.get("tab", ["Home"])[0]
 if current_tab not in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]:
     current_tab = "Home"
 
-# -------- header/banner --------
+# ---- header ----
 header_html = "<div class='header-wrapper'>"
 if banner_b64:
     header_html += f"<div class='header-bg' style='background-image:url(\"data:image/jpeg;base64,{banner_b64}\");'></div>"
@@ -157,7 +131,7 @@ header_html += """
 """
 st.markdown(header_html, unsafe_allow_html=True)
 
-# -------- yellow accent callout --------
+# ---- accent callout ----
 st.markdown("""
   <div class="callout">
     <div class="title">🔥 New Review Live!</div>
@@ -166,16 +140,15 @@ st.markdown("""
   </div>
 """, unsafe_allow_html=True)
 
-# -------- tabs --------
+# ---- tabs ----
 def make_link(label):
     href = "?" + urlencode({"tab": label})
     cls = "tab active" if current_tab == label else "tab"
     return f"<a class='{cls}' href='{href}'>{label}</a>"
 
-tabs_html = "<div class='tab-bar'>" + "".join(make_link(l) for l in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]) + "</div>"
-st.markdown(tabs_html, unsafe_allow_html=True)
+st.markdown("<div class='tab-bar'>" + "".join(make_link(l) for l in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]) + "</div>", unsafe_allow_html=True)
 
-# -------- page content --------
+# ---- content ----
 if current_tab == "Home":
     left, right = st.columns([2,1], gap="large")
     with left:
@@ -233,52 +206,6 @@ elif current_tab == "Movie Reviews":
             review_text = r.get("review","")
             link = r.get("link","#")
             st.markdown(f"""
-                <div class="card">
-                    <div class="meta">{date} | {read_time} min read</div>
-                    <h3>{title} ⭐ {rating}/5</h3>
-                    <p style="margin:6px 0 0;">{review_text}</p>
-                    <a class="read-more" href="{link}" target="_blank">Read More →</a>
-                </div>
-            """, unsafe_allow_html=True)
+We need answer: user posted screenshot and partial code, likely asking to fix yellow warning still there and raw CSS below? They want to proceed. Need to respond with guidance: since version is 1.47.1, warning about experimental_get_query_params should be gone if code uses st.get_query_params only. Need ensure they removed fallback? Yellow bar might be from leftover code earlier? The screenshot shows error truncated; code cut. Provide fix: remove any use of experimental_get_query_params and remove CSS hack maybe causing CSS showing as text? The screenshot shows CSS dumped as text meaning they accidentally used st.write or not specifying unsafe_allow_html for CSS? Actually they have style block earlier with st.markdown correct? The yellow bar is still maybe from something else? That yellow bar previously was deprecation message for experimental_get_query_params but now using get_query_params only, so remove fallback and also likely need to clear cache. Provide concise instructions: ensure only use st.get_query_params; remove the CSS that hides alert maybe interfering? And ensure requirements.txt pinned same version. Provide corrected top portion code snippet including check to use st.get_query_params; no experimental; include version display to verify; also advise clearing Streamlit Cloud cache, redeploy. Answer.
 
-elif current_tab == "Music Posts":
-    st.markdown("<div class='section-title'>Music Posts</div>", unsafe_allow_html=True)
-    if insta_df.empty:
-        st.info("No music posts yet.")
-    else:
-        for _, r in insta_df.iterrows():
-            caption = r.get("caption","")
-            url = r.get("url","")
-            st.markdown(f"""
-                <div class="card">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <div class="pill">🎵</div>
-                        <div><h3 style="margin:0; font-size:1.4rem;">{caption}</h3></div>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-            embed_html = f"""
-                <blockquote class="instagram-media" data-instgrm-permalink="{url}" data-instgrm-version="14" style="margin:auto; max-width:500px;"></blockquote>
-                <script async src="//www.instagram.com/embed.js"></script>
-            """
-            st.components.v1.html(embed_html, height=500, scrolling=True)
-
-elif current_tab == "About":
-    st.markdown("<div class='section-title'>About Me</div>", unsafe_allow_html=True)
-    st.markdown("""
-        <div class="info-box">
-            <h2>Hi, I'm Harshita Kesarwani</h2>
-            <p>A Delhi University student passionate about singing and movies. This blog is my space to share honest movie reviews, musical experiments, and slices from student life.</p>
-            <p>I aim to connect with people who care about authenticity, storytelling, and creative expression.</p>
-        </div>
-    """, unsafe_allow_html=True)
-
-elif current_tab == "Contact":
-    st.markdown("<div class='section-title'>Contact</div>", unsafe_allow_html=True)
-    st.markdown("""
-        <div class="info-box">
-            <p>📧 <strong>Email:</strong> <a href="mailto:harshita@example.com">harshita@example.com</a></p>
-            <p>📸 <strong>Instagram:</strong> <a href="https://instagram.com/harshita.music" target="_blank">@harshita.music</a></p>
-        </div>
-    """, unsafe_allow_html=True)
 
