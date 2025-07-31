@@ -116,7 +116,7 @@ with right_col:
 st.markdown("</div>", unsafe_allow_html=True)
 
 if banner_path:
-    st.image(banner_path, use_column_width=True)
+    st.image(banner_path, use_container_width=True)
 
 # --- tab bar ---
 tab_labels = ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]
