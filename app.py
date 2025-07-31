@@ -80,7 +80,7 @@ except Exception:
 
 # -------- query params / tab logic --------
 try:
-    params = st.get_query_params()
+    params = st.query_params()
 except AttributeError:
     params = st.experimental_get_query_params()
 
