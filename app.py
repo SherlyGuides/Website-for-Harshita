@@ -362,6 +362,8 @@ if current_tab == "Home":
             for _, r in insta_df.iterrows():
                 caption = r.get("caption", "")
                 url = r.get("url", "")
+
+                # card header
                 st.markdown(
                     f"""
                     <div class="card">
@@ -373,15 +375,19 @@ if current_tab == "Home":
                     """,
                     unsafe_allow_html=True,
                 )
+
+                # Instagram embed with script + reprocess
                 embed_html = f"""
-                    <blockquote class="instagram-media" data-instgrm-permalink="{url}" data-instgrm-version="14" style="margin:auto; max-width:420px;"></blockquote>
-                """
+<blockquote class="instagram-media" data-instgrm-permalink="{url}" data-instgrm-version="14" style="margin:auto; max-width:420px;"></blockquote>
+<script async src="//www.instagram.com/embed.js"></script>
+<script>
+  if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === 'function') {{
+    window.instgrm.Embeds.process();
+  }}
+</script>
+"""
                 st.components.v1.html(embed_html, height=450, scrolling=True)
-    # instagram embed script loaded once
-    st.markdown(
-        "<script async src=\"//www.instagram.com/embed.js\"></script>",
-        unsafe_allow_html=True,
-    )
+
 
 elif current_tab == "Movie Reviews":
     st.markdown("<div class='section-title'>Movie Reviews</div>", unsafe_allow_html=True)
@@ -415,6 +421,8 @@ elif current_tab == "Music Posts":
         for _, r in insta_df.iterrows():
             caption = r.get("caption", "")
             url = r.get("url", "")
+
+            # card header
             st.markdown(
                 f"""
                 <div class="card">
@@ -426,15 +434,18 @@ elif current_tab == "Music Posts":
                 """,
                 unsafe_allow_html=True,
             )
-            embed_html = f"""
-                <blockquote class="instagram-media" data-instgrm-permalink="{url}" data-instgrm-version="14" style="margin:auto; max-width:500px;"></blockquote>
-            """
-            st.components.v1.html(embed_html, height=500, scrolling=True)
-    st.markdown(
-        "<script async src=\"//www.instagram.com/embed.js\"></script>",
-        unsafe_allow_html=True,
-    )
 
+            # Instagram embed (script + re-process)
+            embed_html = f"""
+<blockquote class="instagram-media" data-instgrm-permalink="{url}" data-instgrm-version="14" style="margin:auto; max-width:500px;"></blockquote>
+<script async src="//www.instagram.com/embed.js"></script>
+<script>
+  if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === 'function') {{
+    window.instgrm.Embeds.process();
+  }}
+</script>
+"""
+            st.components.v1.html(embed_html, height=500, scrolling=True)
 
 elif current_tab == "Contact":
     st.markdown("<div class='section-title'>Contact</div>", unsafe_allow_html=True)
