@@ -8,7 +8,7 @@ import os
 
 st.set_page_config(page_title="Harshita's Corner", layout="wide")
 
-# ---- helpers ----
+# -------- helpers --------
 def pil_to_base64(img: Image.Image, fmt="PNG"):
     buf = io.BytesIO()
     img.save(buf, format=fmt, quality=85)
@@ -23,7 +23,7 @@ def make_circular(img: Image.Image, size=(120, 120)):
     img.putalpha(mask)
     return img
 
-# ---- load images ----
+# -------- load images --------
 avatar_b64 = None
 if os.path.exists("header.jpeg"):
     try:
@@ -44,13 +44,15 @@ if os.path.exists("trail.jpeg"):
     except Exception:
         banner_b64 = None
 
-# ---- styling ----
+# -------- styling & hide deprecation warning --------
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --purple:#9f7aea;
   --purple-dark:#6e3cb0;
+  --yellow-light:#fff9e6;
+  --yellow-border:#ffe8b3;
   --bg:#fafaff;
   --card:#ffffff;
   --radius:12px;
@@ -59,17 +61,28 @@ st.markdown("""
 }
 body, .stApp { background: var(--bg); color: #1f1f28; }
 .block-container { padding-top:80px; max-width:1140px; margin:auto; }
-.header-wrapper { position: relative; border-radius:16px; overflow:hidden; margin-bottom:24px; }
+
+/* hide the yellow deprecation/info bar (fallback hack) */
+div[data-testid="stMarkdownContainer"] > div[role="alert"] {
+    display: none !important;
+}
+
+/* header/banner */
+.header-wrapper { position: relative; border-radius:16px; overflow:hidden; margin-bottom:16px; }
 .header-bg { width:100%; height:250px; background-size:cover; background-position:center; filter:brightness(0.95); }
 .header-overlay { position:absolute; inset:0; background:rgba(255,255,255,0.55); backdrop-filter:blur(6px); display:flex; align-items:center; padding:30px 25px; gap:20px; flex-wrap:wrap; }
 .header-text { flex:1; min-width:220px; }
 .header-text h1 { margin:0; font-size:2.8rem; font-weight:700; color: var(--purple-dark); line-height:1.05; }
 .header-text p { margin:6px 0 0; font-size:1rem; color:#444; }
 .avatar-container { flex-shrink:0; width:120px; height:120px; }
+
+/* tabs */
 .tab-bar { display:flex; justify-content:center; gap:18px; flex-wrap:wrap; margin:16px 0 32px; }
 .tab { padding:10px 18px; border-radius:999px; font-weight:600; font-size:14px; text-decoration:none; color:#4a4a63; background:#ece8f7; transition:all .15s; }
 .tab:hover { background: rgba(159,122,234,0.12); }
 .tab.active { background: var(--purple-dark); color:white; }
+
+/* content */
 .section-title { font-size:1.8rem; font-weight:700; margin-bottom:14px; color: var(--purple-dark); }
 .card { background: var(--card); padding:18px 22px; border-radius: var(--radius); margin-bottom:22px; box-shadow: var(--shadow); border:1px solid rgba(159,122,234,0.1); }
 .card h3 { margin:0 0 6px; font-size:1.5rem; color: var(--purple-dark); }
@@ -80,10 +93,26 @@ body, .stApp { background: var(--bg); color: #1f1f28; }
 .info-box p { margin:0.5rem 0; font-size:1rem; line-height:1.45; }
 .info-box a { color: var(--purple-dark); font-weight:600; text-decoration:none; }
 .pill { display:inline-block; background: var(--purple); color:white; padding:5px 14px; border-radius:999px; font-size:12px; font-weight:600; margin-right:8px; }
+
+/* yellow callout */
+.callout {
+  background: var(--yellow-light);
+  border:1px solid var(--yellow-border);
+  border-radius:10px;
+  padding:12px 20px;
+  margin-bottom:20px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.callout .title { font-weight:700; color: var(--purple-dark); }
+.callout .desc { color:#4a4a63; }
+.callout a { margin-left:auto; background: var(--purple-dark); color:white; padding:6px 14px; border-radius:999px; text-decoration:none; font-weight:600; font-size:0.85rem; }
 </style>
 """, unsafe_allow_html=True)
 
-# ---- load CSVs ----
+# -------- load data --------
 try:
     reviews_df = pd.read_csv("reviews.csv")
 except Exception:
@@ -93,7 +122,7 @@ try:
 except Exception:
     insta_df = pd.DataFrame(columns=["caption","url"])
 
-# ---- safe query param retrieval ----
+# -------- safe query params fallback --------
 if hasattr(st, "get_query_params"):
     params = st.get_query_params()
 elif hasattr(st, "experimental_get_query_params"):
@@ -105,7 +134,7 @@ current_tab = params.get("tab", ["Home"])[0] if isinstance(params.get("tab", Non
 if current_tab not in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]:
     current_tab = "Home"
 
-# ---- header rendering ----
+# -------- header/banner --------
 header_html = "<div class='header-wrapper'>"
 if banner_b64:
     header_html += f"<div class='header-bg' style='background-image:url(\"data:image/jpeg;base64,{banner_b64}\");'></div>"
@@ -127,7 +156,16 @@ header_html += """
 """
 st.markdown(header_html, unsafe_allow_html=True)
 
-# ---- tab bar ----
+# -------- yellow accent callout --------
+st.markdown("""
+  <div class="callout">
+    <div class="title">🔥 New Review Live!</div>
+    <div class="desc">Check out the latest movie review and tell me what you think.</div>
+    <a href="?tab=Movie Reviews">See Reviews</a>
+  </div>
+""", unsafe_allow_html=True)
+
+# -------- tabs --------
 def make_link(label):
     href = "?" + urlencode({"tab": label})
     cls = "tab active" if current_tab == label else "tab"
@@ -136,7 +174,7 @@ def make_link(label):
 tabs_html = "<div class='tab-bar'>" + "".join(make_link(l) for l in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]) + "</div>"
 st.markdown(tabs_html, unsafe_allow_html=True)
 
-# ---- content ----
+# -------- page content --------
 if current_tab == "Home":
     left, right = st.columns([2,1], gap="large")
     with left:
@@ -242,3 +280,4 @@ elif current_tab == "Contact":
             <p>📸 <strong>Instagram:</strong> <a href="https://instagram.com/harshita.music" target="_blank">@harshita.music</a></p>
         </div>
     """, unsafe_allow_html=True)
+
