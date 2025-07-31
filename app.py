@@ -9,14 +9,16 @@ st.markdown("""
     <style>
     .stApp { background-color: #ffffff; color: #000000; }
 
+    /* Add top margin for Streamlit cloud bar */
     .block-container {
+        margin-top: 60px;   /* pushes content down */
         padding-top: 0rem;
         padding-bottom: 0rem;
         padding-left: 2rem;
         padding-right: 2rem;
     }
 
-    /* Navigation bar - now below header */
+    /* Navigation bar */
     .nav-bar {
         background-color: #f5f5f5;
         display: flex;
@@ -24,7 +26,6 @@ st.markdown("""
         gap: 50px;
         padding: 12px;
         border-bottom: 2px solid #ddd;
-        position: relative;
         margin-bottom: 30px;
     }
     .nav-bar a {
@@ -67,7 +68,7 @@ pages = ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]
 st.markdown("<h1 style='text-align:center; color:#d62828;'>Harshita's Corner</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;'>Follow my journey as a DU student sharing movie reviews and music!</p>", unsafe_allow_html=True)
 
-# --------- NAVIGATION BAR (below header) ---------
+# --------- NAVIGATION BAR ---------
 nav_links = []
 for page in pages:
     active_class = "active" if st.session_state.current_page == page else ""
@@ -136,3 +137,4 @@ elif current_page == "Contact":
     📧 Email: **harshita@example.com**  
     📸 Instagram: [@harshita.music](https://instagram.com/harshita.music)
     """)
+
