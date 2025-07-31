@@ -5,47 +5,6 @@ from PIL import Image, ImageOps, ImageDraw
 import base64
 import io
 import os
-
-# -------- page config --------
-st.set_page_config(page_title="Harshita's Corner", layout="wide")
-
-# -------- helpers --------
-def pil_to_base64(img: Image.Image, fmt="PNG"):
-    buf = io.BytesIO()
-    img.save(buf, format=fmt, quality=85)
-    return base64.b64encode(buf.getvalue()).decode()
-
-def make_circular(img: Image.Image, size=(120, 120)):
-    img = img.convert("RGBA")
-    img = ImageOps.fit(img, size, centering=(0.5, 0.5))
-    mask = Image.new("L", size, 0)
-    draw = ImageDraw.Draw(mask)
-    draw.ellipse((0, 0, size[0], size[1]), fill=255)
-    img.putalpha(mask)
-    return img
-
-# -------- load assets --------
-avatar_b64 = None
-if os.path.exists("header.jpeg"):
-    try:
-        raw = Image.open("header.jpeg")
-        circ = make_circular(raw, size=(120, 120))
-        avatar_b64 = pil_to_base64(circ, fmt="PNG")
-    except Exception:
-        avatar_b64 = None
-
-banner_b64 = None
-if os.path.exists("trail.jpeg"):
-    try:
-        banner = Image.open("trail.jpeg")
-        if banner.width > 1200:
-            ratio = 1200 / banner.width
-            banner = banner.resize((1200, int(banner.height * ratio)), Image.Resampling.LANCZOS)
-        banner_b64 = pil_to_base64(banner, fmt="JPEG")
-    except Exception:
-        banner_b64 = None
-
-# -------- inject theme CSS --------
 st.markdown(
     """
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -104,6 +63,47 @@ h1, .section-title { color: var(--purple-dark) !important; }
 """,
     unsafe_allow_html=True,
 )
+
+# -------- page config --------
+st.set_page_config(page_title="Harshita's Corner", layout="wide")
+
+# -------- helpers --------
+def pil_to_base64(img: Image.Image, fmt="PNG"):
+    buf = io.BytesIO()
+    img.save(buf, format=fmt, quality=85)
+    return base64.b64encode(buf.getvalue()).decode()
+
+def make_circular(img: Image.Image, size=(120, 120)):
+    img = img.convert("RGBA")
+    img = ImageOps.fit(img, size, centering=(0.5, 0.5))
+    mask = Image.new("L", size, 0)
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse((0, 0, size[0], size[1]), fill=255)
+    img.putalpha(mask)
+    return img
+
+# -------- load assets --------
+avatar_b64 = None
+if os.path.exists("header.jpeg"):
+    try:
+        raw = Image.open("header.jpeg")
+        circ = make_circular(raw, size=(120, 120))
+        avatar_b64 = pil_to_base64(circ, fmt="PNG")
+    except Exception:
+        avatar_b64 = None
+
+banner_b64 = None
+if os.path.exists("trail.jpeg"):
+    try:
+        banner = Image.open("trail.jpeg")
+        if banner.width > 1200:
+            ratio = 1200 / banner.width
+            banner = banner.resize((1200, int(banner.height * ratio)), Image.Resampling.LANCZOS)
+        banner_b64 = pil_to_base64(banner, fmt="JPEG")
+    except Exception:
+        banner_b64 = None
+
+# -------- inject theme CSS --------
 
 # -------- load CSV data --------
 try:
