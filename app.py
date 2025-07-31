@@ -1,22 +1,21 @@
 import streamlit as st
 import pandas as pd
 
-# --------- PAGE CONFIGURATION ---------
+# ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="Harshita's Corner", layout="wide")
 
-# --------- CUSTOM CSS ---------
+# ---------- CSS STYLING ----------
 st.markdown("""
     <style>
     .stApp { background-color: #ffffff; color: #000000; }
 
-    /* Push content down for Streamlit cloud bar */
     .block-container {
         margin-top: 60px;
         padding-left: 2rem;
         padding-right: 2rem;
     }
 
-    /* Navigation bar */
+    /* Nav bar */
     .nav-bar {
         background-color: #f5f5f5;
         display: flex;
@@ -26,19 +25,20 @@ st.markdown("""
         border-bottom: 2px solid #ddd;
         margin-bottom: 30px;
     }
-    .nav-bar a {
-        text-decoration: none;
+    .nav-bar button {
+        background: none;
+        border: none;
         font-weight: 600;
         font-size: 18px;
-        color: #000000 !important;
+        color: #000000;
+        cursor: pointer;
     }
-    .nav-bar a.active {
-        color: #6a1b9a !important;
+    .nav-bar button.active {
+        color: #6a1b9a;
         border-bottom: 3px solid #6a1b9a;
         padding-bottom: 3px;
     }
 
-    /* Card design */
     .card {
         background: #f9f9f9;
         padding: 15px;
@@ -46,13 +46,13 @@ st.markdown("""
         margin-bottom: 20px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    .card h3 { margin: 0; color: #6a1b9a; }
+    .card h3 { color: #6a1b9a; margin: 0; }
     .card small { color: #444; }
     .card a { color: #6a1b9a; text-decoration: none; }
     </style>
 """, unsafe_allow_html=True)
 
-# --------- LOAD DATA ---------
+# ---------- LOAD DATA ----------
 try:
     reviews_df = pd.read_csv("reviews.csv")
 except:
@@ -63,31 +63,25 @@ try:
 except:
     insta_df = pd.DataFrame(columns=["caption", "url"])
 
-# --------- NAVIGATION STATE ---------
-if "current_page" not in st.session_state:
-    st.session_state.current_page = "Home"
+# ---------- NAVIGATION STATE ----------
+if "page" not in st.session_state:
+    st.session_state.page = "Home"
 
-pages = ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]
-
-# --------- HEADER ---------
+# ---------- HEADER ----------
 st.markdown("<h1 style='text-align:center; color:#6a1b9a;'>Harshita's Corner</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center; color:#000000;'>Follow my journey as a DU student sharing movie reviews and music!</p>", unsafe_allow_html=True)
 
-# --------- NAVIGATION BAR ---------
-nav_links = []
-for page in pages:
-    active_class = "active" if st.session_state.current_page == page else ""
-    nav_links.append(f"<a href='?page={page}' class='{active_class}'>{page}</a>")
+# ---------- NAV BAR ----------
+pages = ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]
 
-st.markdown(f"<div class='nav-bar'>{''.join(nav_links)}</div>", unsafe_allow_html=True)
+nav_buttons = []
+cols = st.columns(len(pages))
+for i, page in enumerate(pages):
+    if cols[i].button(page, key=page, help=f"Go to {page}"):
+        st.session_state.page = page
 
-# Update current page from query params
-current_page = st.query_params.get("page", [st.session_state.current_page])[0]
-st.session_state.current_page = current_page
-
-# --------- PAGE CONTENT ---------
-if current_page == "Home":
-    # Show movie reviews first
+# ---------- CONTENT ----------
+if st.session_state.page == "Home":
     if not reviews_df.empty:
         for _, row in reviews_df.iterrows():
             st.markdown(f"""
@@ -101,7 +95,6 @@ if current_page == "Home":
     else:
         st.info("No movie reviews available yet.")
 
-    # Show Instagram posts
     if not insta_df.empty:
         for _, row in insta_df.iterrows():
             caption = row['caption'] if 'caption' in row else ''
@@ -114,7 +107,7 @@ if current_page == "Home":
     else:
         st.info("No Instagram music posts available yet.")
 
-elif current_page == "Movie Reviews":
+elif st.session_state.page == "Movie Reviews":
     st.markdown("<h2 style='color:#6a1b9a;'>🎬 Movie Reviews</h2>", unsafe_allow_html=True)
     if not reviews_df.empty:
         for _, row in reviews_df.iterrows():
@@ -129,7 +122,7 @@ elif current_page == "Movie Reviews":
     else:
         st.info("No movie reviews available yet.")
 
-elif current_page == "Music Posts":
+elif st.session_state.page == "Music Posts":
     st.markdown("<h2 style='color:#6a1b9a;'>🎵 Music Posts</h2>", unsafe_allow_html=True)
     if not insta_df.empty:
         for _, row in insta_df.iterrows():
@@ -143,18 +136,19 @@ elif current_page == "Music Posts":
     else:
         st.info("No Instagram music posts available yet.")
 
-elif current_page == "About":
+elif st.session_state.page == "About":
     st.markdown("<h2 style='color:#6a1b9a;'>About Me</h2>", unsafe_allow_html=True)
     st.write("""
     Hi, I'm **Harshita Kesarwani**, a Delhi University student passionate about singing and movies.  
     This blog is where I share my honest reviews, singing journey, and stories from my student life.
     """)
 
-elif current_page == "Contact":
+elif st.session_state.page == "Contact":
     st.markdown("<h2 style='color:#6a1b9a;'>Contact</h2>", unsafe_allow_html=True)
     st.write("""
     📧 Email: **harshita@example.com**  
     📸 Instagram: [@harshita.music](https://instagram.com/harshita.music)
     """)
+
 
 
