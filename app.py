@@ -63,7 +63,69 @@ reviews_df = pd.DataFrame([
     {"title": "12th Fail", "rating": "5", "date": "2023-12-15", "read_time": "6", "review": "A movie about perseverance that resonated with me.", "link": "#"}
 ])
 insta_df = pd.DataFrame([
-    {"caption": "Latest Reel", "url": "https://www.instagram.com/p/C
+    {"caption": "Latest Reel", "url": "https://www.instagram.com/p/Cs_example/"}
+])
+
+# ---- header ----
+st.markdown(f"""
+<div style="margin-top:20px;">
+  <div class="callout">
+    <div class="title">🔥 New Review Live!</div>
+    <div class="desc">Check out the latest movie review and tell me what you think.</div>
+    <a href="?tab=Movie Reviews">See Reviews</a>
+  </div>
+  <div class="tab-bar">
+    {"".join(f"<a class='{'tab active' if current_tab==t else 'tab'}' href='?tab={t}'>{t}</a>" for t in ['Home','Movie Reviews','Music Posts','About','Contact'])}
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ---- content ----
+if current_tab == "Home":
+    st.markdown("<div class='section-title'>Latest Movie Reviews</div>", unsafe_allow_html=True)
+    for _, r in reviews_df.iterrows():
+        st.markdown(f"""
+            <div class="card">
+              <div class="meta">{r['date']} | {r['read_time']} min read</div>
+              <h3>{r['title']} ⭐ {r['rating']}/5</h3>
+              <p>{r['review']}</p>
+              <a class="read-more" href="{r['link']}">Read More →</a>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<div class='section-title'>Music Posts</div>", unsafe_allow_html=True)
+    for _, r in insta_df.iterrows():
+        st.markdown(f"""
+            <div class="card">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div class="pill">🎵</div>
+                <div><h3 style="margin:0; font-size:1.2rem;">{r['caption']}</h3></div>
+              </div>
+            </div>
+        """, unsafe_allow_html=True)
+        st.components.v1.html(f"""
+            <blockquote class="instagram-media" data-instgrm-permalink="{r['url']}" data-instgrm-version="14" style="margin:auto; max-width:420px;"></blockquote>
+            <script async src="//www.instagram.com/embed.js"></script>
+        """, height=400)
+
+elif current_tab == "About":
+    st.markdown("<div class='section-title'>About</div>", unsafe_allow_html=True)
+    st.markdown("""
+      <div class="info-box">
+        <h2>Hi, I'm Harshita Kesarwani</h2>
+        <p>Delhi University student sharing movie reviews and music.</p>
+      </div>
+    """, unsafe_allow_html=True)
+
+elif current_tab == "Contact":
+    st.markdown("<div class='section-title'>Contact</div>", unsafe_allow_html=True)
+    st.markdown("""
+      <div class="info-box">
+        <p>📧 <strong>Email:</strong> <a href="mailto:harshita@example.com">harshita@example.com</a></p>
+        <p>📸 <strong>Instagram:</strong> <a href="https://instagram.com/harshita.music" target="_blank">@harshita.music</a></p>
+      </div>
+    """, unsafe_allow_html=True)
+
 
 
 
