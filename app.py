@@ -44,9 +44,8 @@ if os.path.exists("trail.jpeg"):
     except Exception:
         banner_b64 = None
 
-# ---- styling ----
-st.markdown(
-    """
+# ---- inject CSS ----
+css = """
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -94,21 +93,21 @@ body, .stApp { background: var(--bg); color: #1f1f28; }
 .callout .desc { color:#4a4a63; }
 .callout a { margin-left:auto; background: var(--purple-dark); color:white; padding:6px 14px; border-radius:999px; text-decoration:none; font-weight:600; font-size:0.85rem; }
 </style>
-""",
-    unsafe_allow_html=True,
-)
+"""
+st.markdown(css, unsafe_allow_html=True)
 
-# ---- load content ----
+# ---- load data ----
 try:
     reviews_df = pd.read_csv("reviews.csv")
 except Exception:
     reviews_df = pd.DataFrame(columns=["title", "review", "rating", "date", "read_time", "link"])
+
 try:
     insta_df = pd.read_csv("instagram_links.csv")
 except Exception:
     insta_df = pd.DataFrame(columns=["caption", "url"])
 
-# ---- tab selection ----
+# ---- tab logic ----
 params = st.get_query_params()
 current_tab = params.get("tab", ["Home"])[0]
 if current_tab not in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]:
@@ -148,7 +147,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ---- tabs ----
+# ---- tab bar ----
 def make_link(label):
     href = "?" + urlencode({"tab": label})
     cls = "tab active" if current_tab == label else "tab"
@@ -290,3 +289,4 @@ elif current_tab == "Contact":
         """,
         unsafe_allow_html=True,
     )
+
