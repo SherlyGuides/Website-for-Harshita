@@ -254,31 +254,7 @@ else:
             </div>
         </div>""")
 
-st.markdown(
-    f"""
-<div class="header-wrapper">
-  <div class="header-bg" style="{header_bg_style};">
-    <div class="header-overlay">
-      {avatar_html}
-      <div class="header-text">
-         <h1>Harshita's Corner</h1>
-         <p>Follow my journey as a DU student sharing movie reviews and music!</p>
-      </div>
-      <div style="margin-left:auto; min-width:220px;">
-          <div class="info-box" style="background:rgba(255,245,235,0.9); border:1px solid rgba(255,200,150,0.6);">
-              <div style="font-weight:600; margin-bottom:6px;">🔥 New Review Live!</div>
-              <div style="font-size:0.9rem;">Check out the latest movie review and tell me what you think.</div>
-              <div style="margin-top:4px;">
-                  <a href='?tab=Movie Reviews' style="text-decoration:none; color:{PRIMARY}; font-weight:600;">See Reviews →</a>
-              </div>
-          </div>
-      </div>
-    </div>
-  </div>
-</div>
-""",
-    unsafe_allow_html=True,
-)
+
 
 # --- tabs ---
 def make_link(label, current_tab):
