@@ -6,7 +6,7 @@ import base64
 import io
 import os
 
-# -------- config --------
+# -------- page config --------
 st.set_page_config(page_title="Harshita's Corner", layout="wide")
 
 # -------- helpers --------
@@ -24,7 +24,7 @@ def make_circular(img: Image.Image, size=(120, 120)):
     img.putalpha(mask)
     return img
 
-# -------- assets (images) --------
+# -------- load assets --------
 avatar_b64 = None
 if os.path.exists("header.jpeg"):
     try:
@@ -45,7 +45,7 @@ if os.path.exists("trail.jpeg"):
     except Exception:
         banner_b64 = None
 
-# -------- CSS / theme --------
+# -------- inject theme CSS --------
 st.markdown(
     """
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -61,14 +61,11 @@ st.markdown(
   --shadow:0 20px 40px -10px rgba(159,122,234,0.15);
   font-family:'Inter', system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
 }
-/* force light base */
 body, .stApp {
   background: var(--bg) !important;
   color: #1f1f28 !important;
 }
-h1, .section-title {
-  color: var(--purple-dark) !important;
-}
+h1, .section-title { color: var(--purple-dark) !important; }
 .block-container { padding-top:80px; max-width:1140px; margin:auto; }
 
 /* header/banner */
@@ -86,18 +83,19 @@ h1, .section-title {
 .tab:hover { background: rgba(159,122,234,0.12); }
 .tab.active { background: var(--purple-dark); color:white; }
 
-/* cards/content */
+/* content cards */
 .section-title { font-size:1.8rem; font-weight:700; margin-bottom:14px; }
 .card { background: var(--card); padding:18px 22px; border-radius: var(--radius); margin-bottom:22px; box-shadow: var(--shadow); border:1px solid rgba(159,122,234,0.1); }
 .card h3 { margin:0 0 6px; font-size:1.5rem; }
 .meta { font-size:12px; color:#555; margin-bottom:6px; }
 .read-more { display:inline-block; margin-top:6px; font-weight:600; color: var(--purple-dark); text-decoration:none; }
 
+/* info */
 .info-box { background:#ffffff; padding:22px 26px; border-radius: var(--radius); box-shadow:0 20px 40px -10px rgba(159,122,234,0.08); margin-bottom:30px; border:3px solid var(--purple); }
 .info-box h2 { margin-top:0; }
 
+/* pills & callout */
 .pill { display:inline-block; background: var(--purple); color:white; padding:5px 14px; border-radius:999px; font-size:12px; font-weight:600; margin-right:8px; }
-
 .callout { background: var(--yellow-light); border:1px solid var(--yellow-border); border-radius:10px; padding:12px 20px; margin-bottom:20px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
 .callout .title { font-weight:700; }
 .callout .desc { color:#4a4a63; }
@@ -107,7 +105,7 @@ h1, .section-title {
     unsafe_allow_html=True,
 )
 
-# -------- load data --------
+# -------- load CSV data --------
 try:
     reviews_df = pd.read_csv("reviews.csv")
 except Exception:
@@ -118,14 +116,11 @@ try:
 except Exception:
     insta_df = pd.DataFrame(columns=["caption", "url"])
 
-# -------- tab logic --------
-def get_params():
-    if hasattr(st, "get_query_params"):
-        return st.get_query_params()
-    else:
-        return st.experimental_get_query_params()
-
-params = get_params()
+# -------- tab handling (safe) --------
+if hasattr(st, "query_params"):
+    params = st.query_params
+else:
+    params = st.experimental_get_query_params()
 current_tab = params.get("tab", ["Home"])[0]
 if current_tab not in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]:
     current_tab = "Home"
@@ -152,7 +147,7 @@ header_html += """
 """
 st.markdown(header_html, unsafe_allow_html=True)
 
-# -------- callout --------
+# -------- highlight callout --------
 st.markdown(
     """
   <div class="callout">
@@ -170,7 +165,6 @@ def make_link(label):
     cls = "tab active" if current_tab == label else "tab"
     return f"<a class='{cls}' href='{href}'>{label}</a>"
 
-
 st.markdown(
     "<div class='tab-bar'>"
     + "".join(make_link(l) for l in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"])
@@ -178,7 +172,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# -------- content --------
+# -------- main content --------
 if current_tab == "Home":
     left, right = st.columns([2, 1], gap="large")
     with left:
@@ -223,12 +217,10 @@ if current_tab == "Home":
                     """,
                     unsafe_allow_html=True,
                 )
-                embed_html = (
-                    f"""
+                embed_html = f"""
                     <blockquote class="instagram-media" data-instgrm-permalink="{url}" data-instgrm-version="14" style="margin:auto; max-width:420px;"></blockquote>
                     <script async src="//www.instagram.com/embed.js"></script>
                     """
-                )
                 st.components.v1.html(embed_html, height=450, scrolling=True)
 
 elif current_tab == "Movie Reviews":
@@ -274,12 +266,10 @@ elif current_tab == "Music Posts":
                 """,
                 unsafe_allow_html=True,
             )
-            embed_html = (
-                f"""
+            embed_html = f"""
                 <blockquote class="instagram-media" data-instgrm-permalink="{url}" data-instgrm-version="14" style="margin:auto; max-width:500px;"></blockquote>
                 <script async src="//www.instagram.com/embed.js"></script>
                 """
-            )
             st.components.v1.html(embed_html, height=500, scrolling=True)
 
 elif current_tab == "About":
@@ -306,6 +296,7 @@ elif current_tab == "Contact":
         """,
         unsafe_allow_html=True,
     )
+
 
 
 
