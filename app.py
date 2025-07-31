@@ -147,7 +147,7 @@ except:
     insta_df = pd.DataFrame(columns=["caption","url"])
 
 # --- determine current tab via query param ---
-params = st.experimental_get_query_params()
+params = st.query_params()
 current_tab = params.get("tab", ["Home"])[0]
 if current_tab not in ["Home", "Movie Reviews", "Music Posts", "About", "Contact"]:
     current_tab = "Home"
