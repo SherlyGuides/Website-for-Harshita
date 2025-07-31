@@ -412,7 +412,7 @@ elif current_tab == "About":
         """
         <div class="info-box">
           <h2>Hi, I'm Harshita Kesarwani</h2>
-          <p>A Delhi University student passionate about singing and movies. This blog is my space to share honest movie reviews, musical experiments, and slices from student life.</p>
+          <p>Born in Haldwani, Nainital, Uttrakhand, I am a Delhi University student passionate about singing and movies. This blog is my space to share honest movie reviews, musical experiments, and slices from student life.</p>
           <p>I aim to connect with people who care about authenticity, storytelling, and creative expression.</p>
         </div>
         """,
@@ -424,8 +424,8 @@ elif current_tab == "Contact":
     st.markdown(
         """
         <div class="info-box">
-          <p>📧 <strong>Email:</strong> <a href="mailto:harshita@example.com">harshita@example.com</a></p>
-          <p>📸 <strong>Instagram:</strong> <a href="https://instagram.com/harshita.music" target="_blank">@harshita.music</a></p>
+          <p>📧 <strong>Email:</strong> <a href="mailto:harshitakesarwani@gmail.com">harshitakesarwani@gmail.com</a></p>
+          <p>📸 <strong>Instagram:</strong> <a href="https://www.instagram.com/harshita.k_25/" target="_blank">@harshita.k_25</a></p>
         </div>
         """,
         unsafe_allow_html=True,
