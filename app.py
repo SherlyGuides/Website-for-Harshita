@@ -7,10 +7,11 @@ from urllib.parse import urlencode
 from PIL import Image
 from io import BytesIO
 import textwrap
-# --- config ---
+
+# --- page config ---
 st.set_page_config(page_title="Hey, it's Harshita Kesarwani", layout="wide")
 
-# --- utilities ---
+# --- helpers ---
 def safe_read_csv(path, cols):
     if os.path.exists(path):
         try:
@@ -33,7 +34,7 @@ def image_to_data_url(path, max_size=None):
     except Exception:
         return None
 
-# --- session state for carousel ---
+# --- carousel state & timing ---
 if "carousel_idx" not in st.session_state:
     st.session_state.carousel_idx = 0
 if "last_advance" not in st.session_state:
@@ -46,6 +47,7 @@ if carousel_files:
     if now - st.session_state.last_advance > CAROUSEL_INTERVAL:
         st.session_state.carousel_idx = (st.session_state.carousel_idx + 1) % len(carousel_files)
         st.session_state.last_advance = now
+        # rerun to show next slide
         st.experimental_rerun()
 
 # --- theme colors ---
@@ -199,12 +201,41 @@ body, .stApp {{
   font-weight:600;
   margin-right:8px;
 }}
+.callout {{
+  background: rgba(255,245,235,0.9);
+  border:1px solid rgba(255,200,150,0.6);
+  border-radius:10px;
+  padding:16px 24px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  font-size:0.95rem;
+  max-width:860px;
+  margin:0 auto 32px;
+}}
+.callout .title {{
+  font-weight:700;
+}}
+.callout .desc {{
+  color:#4a4a63;
+  flex:1;
+}}
+.callout a {{
+  background: var(--purple-dark);
+  color: white;
+  padding:6px 14px;
+  border-radius:999px;
+  text-decoration:none;
+  font-weight:600;
+  font-size:0.85rem;
+}}
 </style>
 """,
     unsafe_allow_html=True,
 )
 
-# --- data ---
+# --- load data ---
 reviews_df = safe_read_csv("reviews.csv", ["title", "review", "rating", "date", "read_time", "link"])
 insta_df = safe_read_csv("instagram_links.csv", ["caption", "url"])
 
@@ -214,14 +245,14 @@ current_tab = params.get("tab", ["Home"])[0] if isinstance(params.get("tab", ["H
 if current_tab not in ["Home", "Movie Reviews", "Music Posts", "Contact"]:
     current_tab = "Home"
 
-# --- header/carousel rendering ---
-# determine current background
+# --- header / carousel ---
+# background image from carousel
 bg_url = None
 if carousel_files:
     current_file = carousel_files[st.session_state.carousel_idx % len(carousel_files)]
     bg_url = image_to_data_url(current_file, max_size=(1400, 400))
 
-# avatar: prefer camera, else header, else trail
+# avatar selection with fallback
 avatar_candidate = None
 for candidate in ["camera.jpeg", "header.jpeg", "trail.jpeg"]:
     if os.path.exists(candidate):
@@ -229,12 +260,12 @@ for candidate in ["camera.jpeg", "header.jpeg", "trail.jpeg"]:
         break
 avatar_url = image_to_data_url(avatar_candidate) if avatar_candidate else None
 
-# build header HTML
+# header background style
 header_bg_style = f"background: {BG};"
 if bg_url:
     header_bg_style = f"background-image:url('{bg_url}');"
 
-avatar_html = ""
+# avatar HTML
 if avatar_url:
     avatar_html = textwrap.dedent(f"""\
         <div class="avatar">
@@ -244,7 +275,7 @@ if avatar_url:
             </div>
         </div>""")
 else:
-    avatar_html = textwrap.dedent(f"""\
+    avatar_html = textwrap.dedent("""\
         <div class="avatar">
             <div style="width:100px;height:100px;border-radius:50%;display:flex;
                         align-items:center;justify-content:center;
@@ -254,7 +285,23 @@ else:
             </div>
         </div>""")
 
-
+# render header/banner (without duplicate callout here)
+st.markdown(
+    f"""
+<div class="header-wrapper">
+  <div class="header-bg" style="{header_bg_style};">
+    <div class="header-overlay">
+      {avatar_html}
+      <div class="header-text">
+         <h1>Hey, it's Harshita Kesarwani</h1>
+         <p>Follow my journey as a DU student sharing movie reviews and music!</p>
+      </div>
+    </div>
+  </div>
+</div>
+""",
+    unsafe_allow_html=True,
+)
 
 # --- tabs ---
 def make_link(label, current_tab):
@@ -266,23 +313,22 @@ def make_link(label, current_tab):
 tabs_html = "<div class='tab-bar'>" + "".join(
     make_link(l, current_tab) for l in ["Home", "Movie Reviews", "Music Posts", "Contact"]
 ) + "</div>"
-
 st.markdown(tabs_html, unsafe_allow_html=True)
 
-# Callout moved out of header, placed under tabs
-callout_html = """
-<div class="callout" style="max-width:860px; margin:0 auto 32px;">
-  <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-    <div class="title">🔥 New Review Live!</div>
-    <div class="desc">Check out the latest movie review and tell me what you think.</div>
-    <a href="?tab=Movie%20Reviews">See Reviews →</a>
-  </div>
-</div>
-"""
-if current_tab in ["Home", "Movie Reviews"]:
-    st.markdown(callout_html, unsafe_allow_html=True)
+# --- moved callout below tabs ---
+if current_tab in ["Movie Reviews"]:
+    st.markdown(
+        """
+        <div class="callout">
+          <div class="title">🔥 New Review Live!</div>
+          <div class="desc">Check out the latest movie review and tell me what you think.</div>
+          <a href="?tab=Movie%20Reviews">See Reviews →</a>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-# --- content area ---
+# --- content ---
 if current_tab == "Home":
     left, right = st.columns([2, 1], gap="large")
     with left:
@@ -329,9 +375,13 @@ if current_tab == "Home":
                 )
                 embed_html = f"""
                     <blockquote class="instagram-media" data-instgrm-permalink="{url}" data-instgrm-version="14" style="margin:auto; max-width:420px;"></blockquote>
-                    <script async src="//www.instagram.com/embed.js"></script>
                 """
                 st.components.v1.html(embed_html, height=450, scrolling=True)
+    # instagram embed script loaded once
+    st.markdown(
+        "<script async src=\"//www.instagram.com/embed.js\"></script>",
+        unsafe_allow_html=True,
+    )
 
 elif current_tab == "Movie Reviews":
     st.markdown("<div class='section-title'>Movie Reviews</div>", unsafe_allow_html=True)
@@ -378,9 +428,12 @@ elif current_tab == "Music Posts":
             )
             embed_html = f"""
                 <blockquote class="instagram-media" data-instgrm-permalink="{url}" data-instgrm-version="14" style="margin:auto; max-width:500px;"></blockquote>
-                <script async src="//www.instagram.com/embed.js"></script>
             """
             st.components.v1.html(embed_html, height=500, scrolling=True)
+    st.markdown(
+        "<script async src=\"//www.instagram.com/embed.js\"></script>",
+        unsafe_allow_html=True,
+    )
 
 
 elif current_tab == "Contact":
@@ -394,7 +447,3 @@ elif current_tab == "Contact":
         """,
         unsafe_allow_html=True,
     )
-
-
-
-
