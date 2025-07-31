@@ -1,4 +1,5 @@
 import streamlit as st
+st.write("Streamlit version:", st.__version__)
 import pandas as pd
 from urllib.parse import urlencode
 from PIL import Image, ImageOps, ImageDraw
